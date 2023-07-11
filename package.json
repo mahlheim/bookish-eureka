@@ -1,0 +1,18 @@
+{
+    "name": "Module 12 SQL Challenge: Employee Tracker",
+    "version": "1.0.0",
+    "description": "A command-line application that manages a company's employee database, using Node.js, Inquirer, and MySQL.",
+    "main": "server.js",
+    "dependencies": {
+      "express": "^4.17.1",
+      "inquirer": "^8.2.4"
+    },
+    "scripts": {
+      "test": "echo \"Error: no test specified\" && exit 1",
+      "start": "node server.js"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "MIT"
+  }
+  
