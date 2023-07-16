@@ -15,10 +15,12 @@
 This application is a content management system that runs in the command line and allows a user to manage a company's employee database through the use of Node.js, Inquirer, and MySQL.
 
 ## Installation
-Clone the repository to your local machine, install the dependencies and run the app from the command line by running "npm start".
+Clone the repository to your local machine, install the dependencies, set up and seed your database, and then run the app from the command line by running "npm start".
 
 ## Usage
 Run "npm start". The app will let you know that you are connected to the employees_db database and give you a list of options: view all departments, view all roles, view all employees, add a department, add a role, add an employee, update and employee role, remove an employee, remove a role, remove a department, and finally, exit the app. Select your choice from the list and follow the instructions as they appear to view, add, or remove data from the database.
+
+Watch a walk-through [here](https://drive.google.com/file/d/1tTSEqfOUOIHqTCZ541009SrMRy2MBeEu/view)!
 
 ## Credits
 Below are the references I used while making this app:
