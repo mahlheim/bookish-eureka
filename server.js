@@ -2,7 +2,8 @@
 const express = require('express');
 const inquirer = require('inquirer');
 const mysql = require('mysql2');
-const validate = require('./helpers/validate');
+const validate = require('./helpers/validate.js');
+const consoleTable = require('console.table');
 
 const PORT = process.env.PORT || 3001;
 const app = express();
@@ -80,25 +81,24 @@ const prompt = () => {
   });
   };
 
-
 // view
 
 // view all departments
 const viewAllDepartments = () => {
   let sql = `SELECT department.id AS id, department.department_name AS department FROM department`;
-  db.promise().query(sql, (error, response) => {
+  db.query(sql, (error, response) => {
     if (error) throw error;
     console.table(response);
     prompt();
   });
-};
+  };
 
 // view all roles
 const viewAllRoles = () => {
   let sql = `SELECT role.id, role.title, department.department_name AS department
             FROM role
             INNER JOIN department ON role.department_id = department.id`;
-  db.promise().query(sql, (error, response) => {
+  db.query(sql, (error, response) => {
     if (error) throw error;
     console.table(response);
     prompt();
@@ -112,12 +112,12 @@ const viewAllEmployees = () => {
             employee.last_name,
             role.title,
             department.department_name AS 'department',
-            role.salary,
+            role.salary
             FROM employee, role, department
             WHERE department.id = role.department_id
             AND role.id = employee.role_id
             ORDER BY employee.id ASC`;
-  db.promise().query(sql, (error, response) => {
+  db.query(sql, (error, response) => {
     if (error) throw error;
     console.table(response);
     prompt();
@@ -148,7 +148,7 @@ const addADepartment = () => {
 // add a role
 const addARole = () => {
   const sql = 'SELECT * FROM department';
-  db.promise().query(sql, (error, response) => {
+  db.query(sql, (error, response) => {
     if (error) throw error;
     let departments = [];
     response.forEach((department) => {departments.push(department.department_name);
@@ -175,7 +175,7 @@ const addARole = () => {
         validate: validate.validateString
       }, 
     {
-      name: validateSalary,
+      name: 'validateSalary',
       type: 'input',
       message: 'Please enter the salary of the new role.',
       validate: validate.validateSalary
@@ -187,8 +187,8 @@ const addARole = () => {
         if (departmentData.departmentName === department.department_name) {departmentID = department.id;}
       });
       let sql = `INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)`;
-      let crit = [createdRole, answer.salary, departmentID];
-      db.promise().query(sql, crit, (error) => {
+      let crit = [createdRole, answer.validateSalary, departmentID];
+      db.query(sql, crit, (error) => {
         if (error) throw error;
         console.log('Role added successfully!');
         viewAllRoles();
@@ -229,7 +229,7 @@ const addAnEmployee = () => {
 .then(answer => {
   const crit = [answer.firstName, answer.lastName];
   const roleSql = `SELECT role.id, role.title FROM role`;
-  db.promise().query(roleSql, (error, data) => {
+  db.query(roleSql, (error, data) => {
     if (error) throw error;
     const roles = data.map(({id, title}) => ({name: title, value: id}));
     inquirer.prompt([{
@@ -242,7 +242,7 @@ const addAnEmployee = () => {
       const role = roleChoice.role;
       crit.push(role);
       const managerSql = `SELECT * FROM employee`;
-      db.promise().query(managerSql, (error, data) => {
+      db.query(managerSql, (error, data) => {
         if (error) throw error;
         const managers = data.map(({id, first_name, last_name}) => ({name: first_name + '' + last_name, value: id}));
         inquirer.prompt ([{
@@ -274,13 +274,13 @@ const addAnEmployee = () => {
 const updateEmployeeRole = () => {
   let sql = `SELECT employee.id, employee.first_name, employee.last_name, role.id AS 'role.id'
             FROM employee, role, department WHERE department.id = role.department_id AND role.id = employee.role_id`;
-  db.promise().query(sql, (error, response) => {
+  db.query(sql, (error, response) => {
     if (error) throw error;
     let employeeNamesArray = [];
     response.forEach((employee) => {employeeNamesArray.push(`${employee.first_name} ${employee.last_name}`);});
     
     let sql = `SELECT role.id, role.title FROM role`;
-    db.promise().query(sql, (error, response) => {
+    db.query(sql, (error, response) => {
       if (error) throw error;
       let rolesArray = [];
       response.forEach((role) => {rolesArray.push(role.title);});
@@ -326,7 +326,7 @@ const updateEmployeeRole = () => {
 // remove employee
 const removeEmployee = () => {
   let sql = `SELECT employee.id, employee.first_name, employee.last_name FROM employee`;
-  db.promise().query(sql, (error, response) => {
+  db.query(sql, (error, response) => {
     if (error) throw error;
     let employeeNamesArray = [];
     response.forEach((employee) => {employeeNamesArray.push(`${employee.first_name} ${employee.last_name}`);});
@@ -356,7 +356,7 @@ const removeEmployee = () => {
 // remove role
 const removeRole = () => {
   let sql = `SELECT role.id, role.title FROM role`;
-  db.promise().query(sql, (error, response) => {
+  db.query(sql, (error, response) => {
     if (error) throw error;
     let roleNamesArray = [];
     response.forEach((role) => {roleNamesArray.push(role.title);});
@@ -386,7 +386,7 @@ const removeRole = () => {
 // remove department
 const removeDepartment = () => {
   let sql = `SELECT department.id, department.department_name FROM department`;
-  db.promise().query(sql, (error, response) => {
+  db.query(sql, (error, response) => {
     if (error) throw error;
     let departmentNamesArray = [];
     response.forEach((department) => {departmentNamesArray.push(department.department_name);});
@@ -404,7 +404,7 @@ const removeDepartment = () => {
         }
       });
     let sql = `DELETE FROM department WHERE department.id = ?`;
-    db.promise().query(sql, [departmentID], (error) => {
+    db.query(sql, [departmentID], (error) => {
       if (error) throw error;
       console.log('Department removed successfully!');
       viewAllDepartments();
@@ -412,6 +412,9 @@ const removeDepartment = () => {
     });
   });
 };
+
+// call the prompt function to start the app
+prompt();
 
 // default response for any other request (not found)
 app.use((req, res) => {
